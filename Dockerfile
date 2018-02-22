@@ -16,7 +16,7 @@ RUN \
     pcntl \
     phar \
     posix
-    
+
 
 # Configure PHP
 # php module build deps
@@ -88,3 +88,14 @@ RUN mkdir /var/log/php-fpm && \
     chown -R www-data:www-data /var/log/php-fpm
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr \
     && docker-php-ext-install gd
+
+# Install cron
+RUN apt-get install -y cron rsyslog && apt-get clean
+ADD start.sh /start.sh
+ADD crontab /crontab.www-data
+RUN crontab -u www-data /crontab.www-data; \
+  chmod +x /start.sh; \
+  chmod +r /varnish.php; \
+  touch /var/log/syslog; \
+  touch /var/log/cron.log; \
+CMD "/start.sh"
