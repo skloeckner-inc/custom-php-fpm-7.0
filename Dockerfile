@@ -95,7 +95,6 @@ ADD start.sh /start.sh
 ADD crontab /crontab.www-data
 RUN crontab -u www-data /crontab.www-data; \
   chmod +x /start.sh; \
-  chmod +r /varnish.php; \
   touch /var/log/syslog; \
-  touch /var/log/cron.log; \
+  touch /var/log/cron.log;
 CMD "/start.sh"
