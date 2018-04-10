@@ -1,7 +1,9 @@
 FROM php:7.0-fpm
 
 ENV PHP_EXTRA_CONFIGURE_ARGS --enable-fpm --with-fpm-user=www-data --with-fpm-group=www-data --enable-intl --enable-opcache --enable-zip
-
+ENV COMPOSER_MAGENTO_VERSION=2.2.2
+ENV magrepouser=2b1db2836a1bdc0b3740257716f942bb
+ENV magrepopw=ae59850def572919979465cc57250480
 RUN apt-get update
 
 RUN \
@@ -16,7 +18,7 @@ RUN \
     pcntl \
     phar \
     posix
-    
+
 
 # Configure PHP
 # php module build deps
@@ -80,6 +82,30 @@ RUN rm -rf /var/www/html/*
 # Set www-data as owner for /var/www
 RUN chown -R www-data:www-data /var/www/
 RUN chmod -R g+w /var/www/
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Magento auth for main repo
+#RUN mkdir ~/.composer \
+#> ~/.composer/auth.json
+RUN "cat > ~/.composer/auth.json <<EOF 
+{
+	"http-basic": {
+		"repo.magento.com": {
+			"username":"$magrepouser",
+			"password":"$magrepopw"
+		}
+	}
+}
+EOF"
+
+RUN composer create-project \
+--ignore-platform-reqs \
+--repository-url=https://repo.magento.com/ \
+magento/project-community-edition \
+/var/www/html $COMPOSER_MAGENTO_VERSION
+
+VOLUME /var/www/html
 
 # Create log folders
 RUN mkdir /var/log/php-fpm && \
