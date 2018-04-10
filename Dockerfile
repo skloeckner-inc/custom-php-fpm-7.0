@@ -8,7 +8,8 @@ RUN \
   apt-get install -y \
   libcurl4-gnutls-dev \
   libxml2-dev \
-  libssl-dev
+  libssl-dev \
+  sendmail
 
 RUN \
     /usr/local/bin/docker-php-ext-install \
